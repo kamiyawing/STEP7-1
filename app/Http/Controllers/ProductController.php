@@ -15,11 +15,7 @@ class ProductController extends Controller
       $manufacturer = $request->input('manufacturer');
         // Modelにてジュースの商品データを取得済みのためインスタンス生成
       $productModel = new Product();
-      $products = $productModel->getList()
-        // 結合するテーブルとカラム指定
-      ->join('companies', 'products.company_id', '=', 'companies.id')
-          // selectでは、最終的に抜き出すカラムを指定
-      ->select('products.*', 'companies.company_name as company_name');
+      $products = $productModel->getList();
           //商品名を検索
       if (!empty($keyword)) {
         $products = $products->where('product_name', 'like', '%' . $keyword. '%');
@@ -28,8 +24,7 @@ class ProductController extends Controller
       if (!empty($manufacturer)) {
         $products = $products->where('company_id', $manufacturer);
         }
-      $products = $products->get();
-        // 企業情報を取得
+        // 検索フォーム用に企業情報を取得
       $companyModel = new Company();
       $companies = $companyModel->getList()
       ->get();
@@ -47,58 +42,54 @@ class ProductController extends Controller
       }
 
     public function detail($id) {
-        $detail = Product::with('company')->find($id);
-        return view('product_detail', compact('detail'));
+      $productModel = new Product();
+      $detail = $productModel->find($id);
+      return view('product_detail', compact('detail'));
       }
 
     public function edit($id) {
-        $edit = Product::with('company')->find($id);
-        $companyModel = new Company();
-        $companies = $companyModel->getList()
-        ->get();
-        return view('edit', compact('edit', 'companies'));
+      $productModel = new Product();
+      $edit = $productModel ->find($id);
+      $companyModel = new Company();
+      $companies = $companyModel->getList()
+      ->get();
+      return view('edit', compact('edit', 'companies'));
       }
     
     protected function store(Request $Request) {
-        $Request->validate([
-        'product_name' => 'required|string',
-        'company_id' => 'required|exists:companies,id', //exists:テーブル名,idで、companiesテーブルのidカラムにフィールドの値が存在することを確認
-        'price' => 'required|numeric',
-        'stock' => 'required|numeric',
-        'comment' => 'nullable|string',
-        'img_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', //mimes:で指定された拡張子か確認
-        ]);
-        if ($Request->hasFile('img_path')) {
-          //画像ファイルの取得
-        $image = $Request->file('img_path');
-          //画像ファイルのファイル名を取得
-        $file_name = $image->getClientOriginalName();
-          // ファイル名に日付を追加
-        $file_name = date('YmdHis') . '_' . $file_name;
-          //storage/app/public/imageフォルダ内に、取得したファイル名で保存
-        $image ->storeAs('public/image/', $file_name);
-          //データベース登録用に、ファイルパスを作成
-        $image_path = 'storage/image/' . $file_name;
-        } else {
-          $image_path = null;
-        }
-          //トランザクション
-        DB::beginTransaction();
-        try{
-          Product::create([
-            'company_id' => $Request->input('company_id'),
-            'product_name' => $Request->input('product_name'),
-            'price' => $Request->input('price'),
-            'stock' => $Request->input('stock'),
-            'comment' => $Request->input('comment'),
-            'img_path' => $image_path, 
-          ]);
-          DB::commit();
-        }catch(\Exception $e){
-          DB::rollBack();
-        }
-          //任意のViewにリダイレクト
-        return redirect()->route('product_register');
+      $Request->validate([
+      'product_name' => 'required|string',
+      'company_id' => 'required|exists:companies,id', //exists:テーブル名,idで、companiesテーブルのidカラムにフィールドの値が存在することを確認
+      'price' => 'required|numeric',
+      'stock' => 'required|numeric',
+      'comment' => 'nullable|string',
+      'img_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', //mimes:で指定された拡張子か確認
+      ]);
+      if ($Request->hasFile('img_path')) {
+        //画像ファイルの取得
+      $image = $Request->file('img_path');
+        //画像ファイルのファイル名を取得
+      $file_name = $image->getClientOriginalName();
+        // ファイル名に日付を追加
+      $file_name = date('YmdHis') . '_' . $file_name;
+        //storage/app/public/imageフォルダ内に、取得したファイル名で保存
+      $image ->storeAs('public/image/', $file_name);
+        //データベース登録用に、ファイルパスを作成
+      $image_path = 'storage/image/' . $file_name;
+      } else {
+        $image_path = null;
+      }
+        //トランザクション
+      DB::beginTransaction();
+      try{
+        $model = new Product();
+        $model->store($Request , $image_path);
+        DB::commit();
+      }catch(\Exception $e){
+        DB::rollBack();
+      }
+        //任意のViewにリダイレクト
+      return redirect()->route('product_register');
     }
 
     protected function update(Request $Request, $id) {
@@ -110,7 +101,8 @@ class ProductController extends Controller
       'comment' => 'nullable|string',
       'img_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', //mimes:で指定された拡張子か確認
       ]);
-      $product = Product::find($id);
+      $model = new Product();
+      $product = $model->find($id);
         // 画像ファイルがアップロードされ、既にデータが登録済みの場合
       if ($Request->hasFile('img_path') && $product->img_path) {
           // 既存の画像ファイルを削除
@@ -149,14 +141,7 @@ class ProductController extends Controller
         //トランザクション
       DB::beginTransaction();
       try{
-        Product::where('id', $id)->update([
-          'company_id' => $Request->input('company_id'),
-          'product_name' => $Request->input('product_name'),
-          'price' => $Request->input('price'),
-          'stock' => $Request->input('stock'),
-          'comment' => $Request->input('comment'),
-          'img_path' => $image_path, 
-        ]);
+        $model->updateProduct($id , $Request , $image_path);
         DB::commit();
       }catch(\Exception $e){
         DB::rollBack();
@@ -166,10 +151,10 @@ class ProductController extends Controller
     }
 
     public function product_delete($id) {
-      $product = Product::find($id);
+      $model = new Product();
+      $product = $model->find($id);
       if ($product->img_path) {
         Storage::delete('public/image/'. basename($product->img_path));
-        $product->delete();
       }
         $product->delete();
         return redirect()->route('product');

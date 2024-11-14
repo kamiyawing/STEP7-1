@@ -20,11 +20,34 @@ class Product extends Model
 
     public function getList() {
         // productsテーブルからデータを取得
-        $products = DB::table('products');
+        $products = Product::with('company')
+        ->get();
         return $products;
     }
 
     public function company() {
         return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function store($Request , $image_path) {
+        Product::create([
+        'company_id' => $Request->input('company_id'),
+        'product_name' => $Request->input('product_name'),
+        'price' => $Request->input('price'),
+        'stock' => $Request->input('stock'),
+        'comment' => $Request->input('comment'),
+        'img_path' => $image_path, 
+      ]);
+    }
+
+    public function updateProduct($id , $Request , $image_path) {
+        Product::where('id', $id)->update([
+        'company_id' => $Request->input('company_id'),
+        'product_name' => $Request->input('product_name'),
+        'price' => $Request->input('price'),
+        'stock' => $Request->input('stock'),
+        'comment' => $Request->input('comment'),
+        'img_path' => $image_path, 
+      ]);
     }
 }

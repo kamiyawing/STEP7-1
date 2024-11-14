@@ -12,9 +12,9 @@
                 <option value="{{ $company->id }}">{{ $company->company_name }}</option>
                 @endforeach
               </select>
-              <button type="submit">検索</button>
+              <button type="submit" class="btn btn-success">検索</button>
           </form>
-            <table border="1">
+            <table class="table table-striped table align-middle">
                 <thead>
                     <tr>
                       <th>ID</th>
@@ -23,7 +23,7 @@
                       <th>価格</th>
                       <th>在庫</th>
                       <th>メーカー名</th>
-                      <th><button type="button" onclick="location.href='{{ route('product_register') }}'">新規登録</button></th>
+                      <th><button type="button" onclick="location.href='{{ route('product_register') }}'" class="btn btn-info">新規登録</button></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,14 +34,14 @@
                       <td>{{ $product->product_name }}</td>
                       <td>{{ $product->price }}</td>
                       <td>{{ $product->stock }}</td>
-                      <td>{{ $product->company_name }}</td>
+                      <td>{{ $product-> company-> company_name }}</td>
                       <td>
                         <div style="display: flex;">
-                          <button type="button" onclick="location.href='{{ route('detail', ['id' => $product->id]) }}'">詳細</button>
+                          <button type="button" onclick="location.href='{{ route('detail', ['id' => $product->id]) }}'" class="btn btn-primary">詳細</button>
                           <form action="{{ route('product_delete', ['id' => $product->id]) }}" method="POST" onsubmit="return confirm('本当に削除しますか？')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit">削除</button>
+                            <button type="submit" class="btn btn-danger">削除</button>
                           </form>
                       </td>
                   </tr>

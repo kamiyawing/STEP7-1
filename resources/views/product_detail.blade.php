@@ -4,7 +4,7 @@
 <div class="container">
     <h1>商品情報詳細画面</h1>
         <div class="product_detail">
-            <table border="1">
+            <table class="table table-striped">
                     <tr>
                       <th>ID</th>
                       <td>{{ $detail->id }}</td>
@@ -32,11 +32,12 @@
                       <th>コメント</th>
                       <td>{{ $detail->comment }}</td>
                     </tr>
-                    <tr>
-                      <th><button type="button" onclick="location.href='{{ route('edit', ['id' => $detail->id]) }}'">編集</button></th>
-                      <td><button type="button" onclick="location.href='{{ route('product') }}'">戻る</button></td>
-                    </tr>
-            </table>
+            </table>          
+            <div>
+              <button type="button" onclick="location.href='{{ route('edit', ['id' => $detail->id]) }}'" class="btn btn-primary">編集</button>
+              <button type="button" onclick="location.href='{{ route('product') }}'" class="btn btn-warning">戻る</button>
+            </div>
+            
         </div>
 
 </div>
