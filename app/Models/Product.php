@@ -20,8 +20,7 @@ class Product extends Model
 
     public function getList() {
         // productsテーブルからデータを取得
-        $products = Product::with('company')
-        ->get();
+        $products = Product::with('company');
         return $products;
     }
 

@@ -16,19 +16,20 @@ class ProductController extends Controller
         // Modelにてジュースの商品データを取得済みのためインスタンス生成
       $productModel = new Product();
       $products = $productModel->getList();
-          //商品名を検索
+        // 商品名を検索
       if (!empty($keyword)) {
-        $products = $products->where('product_name', 'like', '%' . $keyword. '%');
+        $products = $products->where('product_name', 'like', '%' . $keyword . '%');
         }
-          //メーカー名絞り込み
+          // メーカー名絞り込み
       if (!empty($manufacturer)) {
         $products = $products->where('company_id', $manufacturer);
         }
+      $products = $products->get();
         // 検索フォーム用に企業情報を取得
       $companyModel = new Company();
       $companies = $companyModel->getList()
       ->get();
-        //$manufacturerを空設定し、初期値に設定した「メーカー名」が$manufacturerに入らないようにする
+        // $manufacturerを空設定し、初期値に設定した「メーカー名」が$manufacturerに入らないようにする
       $manufacturer = '';
         // 商品データとビューをレンダリング
       return view('products', compact('products', 'companies', 'manufacturer'));
