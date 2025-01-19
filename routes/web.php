@@ -25,6 +25,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/product', [App\Http\Controllers\ProductController::class, 'index'])->name('product');
 
+    Route::get('/search', [App\Http\Controllers\ProductController::class, 'search'])->name('search');
+
     Route::get('/detail/{id}', [App\Http\Controllers\ProductController::class, 'detail'])->name('detail');
 
     Route::get('/edit/{id}', [App\Http\Controllers\ProductController::class, 'edit'])->name('edit');

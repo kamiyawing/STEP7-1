@@ -10,9 +10,28 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index(Request $request) {
-      $keyword = $request->input('keyword');
-      $manufacturer = $request->input('manufacturer');
+    public function index() {
+        // Modelにてジュースの商品データを取得済みのためインスタンス生成
+      $productModel = new Product();
+      $products = $productModel->getList();
+      $products = $products->get();
+        // 検索フォーム用に企業情報を取得
+      $companyModel = new Company();
+      $companies = $companyModel->getList()
+      ->get();
+        // $manufacturerを空設定し、初期値に設定した「メーカー名」が$manufacturerに入らないようにする
+      $manufacturer = '';
+        // 商品データとビューをレンダリング
+      return view('products', compact('products', 'companies', 'manufacturer'));
+      }
+
+    public function search(Request $request) {
+      $keyword = $request->keyword;
+      $manufacturer = $request->manufacturer;
+      $ander_price = $request->ander_price;
+      $top_price = $request->top_price;
+      $ander_stock = $request->ander_stock;
+      $top_stock = $request->top_stock;
         // Modelにてジュースの商品データを取得済みのためインスタンス生成
       $productModel = new Product();
       $products = $productModel->getList();
@@ -24,15 +43,21 @@ class ProductController extends Controller
       if (!empty($manufacturer)) {
         $products = $products->where('company_id', $manufacturer);
         }
+          //　最低価格絞り込み
+      if (!empty($ander_price)) {
+        $products = $products->where('price', '>=', $ander_price);
+        }
+      if (!empty($top_price)) {
+        $products = $products->where('price', '<=', $top_price);
+        }
+      if (!empty($ander_stock)) {
+        $products = $products->where('stock', '>=', $ander_stock);
+        }
+      if (!empty($top_stock)) {
+        $products = $products->where('stock', '<=', $top_stock);
+        }
       $products = $products->get();
-        // 検索フォーム用に企業情報を取得
-      $companyModel = new Company();
-      $companies = $companyModel->getList()
-      ->get();
-        // $manufacturerを空設定し、初期値に設定した「メーカー名」が$manufacturerに入らないようにする
-      $manufacturer = '';
-        // 商品データとビューをレンダリング
-      return view('products', compact('products', 'companies', 'manufacturer'));
+      return response()->json($products);
       }
 
     public function product_register() {
@@ -158,6 +183,5 @@ class ProductController extends Controller
         Storage::delete('public/image/'. basename($product->img_path));
       }
         $product->delete();
-        return redirect()->route('product');
     }
 }

@@ -4,17 +4,26 @@
 <div class="container">
     <h1>商品一覧画面</h1>
         <div class="search_box">
-          <form action="{{ route('product') }}" method="get">
-            <input type="text" placeholder="商品名検索" name="keyword">
-              <select name="manufacturer">
+          <label for="search_form">検索欄：</label>
+          <form method="get" action="{{ route('search') }}" id="search_form">
+            <input type="text" placeholder="商品名検索" name="keyword" id="keyword">
+            <select name="manufacturer" id="manufacturer">
                 <option value=""selected>メーカー名</option>
                 @foreach ($companies->unique('company_name') as $company)
                 <option value="{{ $company->id }}">{{ $company->company_name }}</option>
                 @endforeach
-              </select>
-              <button type="submit" class="btn btn-success">検索</button>
+            </select><br>
+            <lavel for="ander_price">価格：</lavel>
+            <input type="number" placeholder="最低値" name="ander_price" id="ander_price">
+            <lavel for="top_price">～</lavel>
+            <input type="number" placeholder="最大値" name="top_price" id="top_price"><br>
+            <lavel for="ander_stock">在庫数：</lavel>
+            <input type="number" placeholder="最低値" name="ander_stock" id="ander_stock">
+            <lavel for="top_stock">～</lavel>
+            <input type="number" placeholder="最大値" name="top_stock" id="top_stock">
+            <button type="submit" class="btn btn-success" id="search">検索</button>
           </form>
-            <table class="table table-striped table align-middle">
+            <table class="table table-striped table align-middle" id="product_List">
                 <thead>
                     <tr>
                       <th>ID</th>
@@ -43,12 +52,12 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">削除</button>
                           </form>
+                        </div>
                       </td>
                   </tr>
                 @endforeach
                 </tbody>
             </table>
         </div>
-
 </div>
 @endsection
