@@ -49,4 +49,10 @@ class Product extends Model
         'img_path' => $image_path, 
       ]);
     }
+
+    public function sale($productId, $product) {
+        Product::where('id', $productId)->update([
+            'stock' => $product
+        ]);
+    }
 }
